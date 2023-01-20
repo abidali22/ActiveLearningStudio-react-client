@@ -86,7 +86,10 @@ const PreviewLayoutModel = (props) => {
         }
       } else {
         replaceH5p = JSON.parse(editVideo?.h5p_content?.parameters);
-        replaceH5p.metadata.title = formData.title;
+        if (replaceH5p.metadata?.title) {
+          replaceH5p.metadata.title = formData.title;
+        }
+
         if (platform === "Brightcove") {
           replaceH5p.interactiveVideo.video.brightcoveVideoID = videoId;
         } else if (platform === "Youtube") {
@@ -425,20 +428,20 @@ const PreviewLayoutModel = (props) => {
                     <Tabs text="1. Select  layout" tabActive={true} />
                     {
                       ((counter = 0),
-                      layout?.map((data) => {
-                        if (data.id === selectedLayout?.id && counter == 0) {
-                          counter++;
-                          return (
-                            <>
-                              <Tabs
-                                text="2. Describe and  create layout"
-                                className="ml-10"
-                                tabActive={true}
-                              />
-                            </>
-                          );
-                        }
-                      }))
+                        layout?.map((data) => {
+                          if (data.id === selectedLayout?.id && counter == 0) {
+                            counter++;
+                            return (
+                              <>
+                                <Tabs
+                                  text="2. Describe and  create layout"
+                                  className="ml-10"
+                                  tabActive={true}
+                                />
+                              </>
+                            );
+                          }
+                        }))
                     }
                     {counter === 0 && (
                       <>
@@ -461,10 +464,10 @@ const PreviewLayoutModel = (props) => {
                   h5pLib={
                     activity
                       ? activity.h5p_content.library.name +
-                        " " +
-                        activity.h5p_content.library.major_version +
-                        "." +
-                        activity.h5p_content.library.minor_version
+                      " " +
+                      activity.h5p_content.library.major_version +
+                      "." +
+                      activity.h5p_content.library.minor_version
                       : selectedLayout?.h5pLib
                   }
                   h5pLibType={activity?.type || selectedLayout?.type}

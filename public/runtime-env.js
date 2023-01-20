@@ -1,12 +1,12 @@
 window.__RUNTIME_CONFIG__ = {
   REACT_APP_PEXEL_API: '563492ad6f91700001000001155d7b75f5424ea694b81ce9f867dddf',
 
-  REACT_APP_API_URL: 'https://dev.currikistudio.org/api/api',
-  REACT_DOMAIN_URL: 'https://dev.currikistudio.org/',
+  REACT_APP_API_URL: 'https://studio.edtechmasters.us/api/api',
+  REACT_DOMAIN_URL: 'https://studio.edtechmasters.us/',
 
   // REACT_DOMAIN_URL: 'https://https://dev.currikistudio.org/.currikistudio.org/',
 
-  REACT_APP_RESOURCE_URL: 'https://dev.currikistudio.org/api',
+  REACT_APP_RESOURCE_URL: 'https://studio.edtechmasters.us/api',
 
   // REACT_APP_API_URL: 'http://127.0.0.1:8000/api',
   // REACT_DOMAIN_URL: 'http://activelearningstudio-api.test/',
