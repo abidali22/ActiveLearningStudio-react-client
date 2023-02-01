@@ -45,17 +45,19 @@ function PreviousLink(props) {
 
   return (
     <div className="slider-hover-section">
-      <Link
-        onClick={() => {
-          if (setH5pCurrentActivity) {
-            setH5pCurrentActivity(previousResource);
-          }
-        }}
-        to={setH5pCurrentActivity ? (activtyPlaylist ? prevLink : void 0) : prevLink}
-      >
-        Previous
-        <FontAwesomeIcon icon="chevron-left" />
-      </Link>
+      {!prevLink.includes('undefined/') &&
+        <Link
+          onClick={() => {
+            if (setH5pCurrentActivity) {
+              setH5pCurrentActivity(previousResource);
+            }
+          }}
+          to={setH5pCurrentActivity ? (activtyPlaylist ? prevLink : void 0) : prevLink}
+        >
+          Previous
+          <FontAwesomeIcon icon="chevron-left" />
+        </Link>
+      }
 
       <div className={`hover-control-caption pointer-cursor${previousResource ? '' : ' no-data prev'}`}>
         {previousResource ? (

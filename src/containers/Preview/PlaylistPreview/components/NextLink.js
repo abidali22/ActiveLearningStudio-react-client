@@ -46,17 +46,19 @@ function NextLink(props) {
 
   return (
     <div className="slider-hover-section">
-      <Link
-        onClick={() => {
-          if (setH5pCurrentActivity) {
-            setH5pCurrentActivity(nextResource);
-          }
-        }}
-        to={setH5pCurrentActivity ? (activtyPlaylist ? nextLink : void 0) : nextLink}
-      >
-        <FontAwesomeIcon icon="chevron-right" />
-        Next
-      </Link>
+      {!nextLink.includes('undefined/') &&
+        <Link
+          onClick={() => {
+            if (setH5pCurrentActivity) {
+              setH5pCurrentActivity(nextResource);
+            }
+          }}
+          to={setH5pCurrentActivity ? (activtyPlaylist ? nextLink : void 0) : nextLink}
+
+        >
+          <FontAwesomeIcon icon="chevron-right" />
+          Next
+        </Link>}
 
       <div className={`hover-control-caption pointer-cursor${nextResource ? '' : ' no-data'}`}>
         {nextResource ? (
