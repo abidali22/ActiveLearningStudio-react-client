@@ -230,7 +230,32 @@ const Activity = (props) => {
         currikiH5PWrapper.current.style.width = `${parentWidth - 10}px`; // eslint-disable-line no-param-reassign
       }
     }
+
+    window.addEventListener('message', function (event) {
+      console.log("Message received from the parent ...: ", event.data); // Message received from parent
+      console.log("Message received from the parent ... event: ", event); // Message received from parent
+      if (window !== window.top) {
+        window.parent.postMessage({ ...event.data }, "*");
+      }
+    });
   }, [currikiH5PWrapper, activityState.h5pObject]);
+
+
+  useEffect(() => {
+    if (document.getElementsByClassName('h5p-iframe').length > 0) {
+      let h5pActivityTimeInterval = setInterval(function () {
+        if (document.getElementsByClassName('h5p-iframe')[0].contentWindow.hasOwnProperty('H5P')) {
+          clearInterval(h5pActivityTimeInterval);
+          let h5pActivity = document.getElementsByClassName('h5p-iframe')[0].contentWindow.H5P.instances[0];
+          if (h5pActivity && h5pActivity.hasOwnProperty('currentSlideIndex')) {
+            let slideNumber = parseInt(h5pActivity.currentSlideIndex) + 1;
+            console.log(">>>>>>>>>>>>>>>>>> ", slideNumber);
+            window.parent.postMessage({ slideNumber }, "*");
+          }
+        }
+      }, 2000);
+    }
+  }, [document.getElementsByClassName('h5p-iframe').length])
 
   return (
     <div>
