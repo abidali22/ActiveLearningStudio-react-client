@@ -232,8 +232,6 @@ const Activity = (props) => {
     }
 
     window.addEventListener('message', function (event) {
-      console.log("Message received from the parent __: ", event.data); // Message received from parent
-      console.log("Message received from the parent __ event: ", event); // Message received from parent
       if (window !== window.top) {
         window.parent.postMessage({ ...event.data }, "*");
       }
@@ -249,7 +247,6 @@ const Activity = (props) => {
           let h5pActivity = document.getElementsByClassName('h5p-iframe')[0].contentWindow.H5P.instances[0];
           if (h5pActivity && h5pActivity.hasOwnProperty('currentSlideIndex')) {
             let slideNumber = parseInt(h5pActivity.currentSlideIndex) + 1;
-            console.log(">>>>>>>>>>>>>>>>>> ", slideNumber);
             window.parent.postMessage({ slideNumber }, "*");
           }
         }
