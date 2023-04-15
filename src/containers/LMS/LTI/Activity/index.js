@@ -232,8 +232,8 @@ const Activity = (props) => {
     }
 
     window.addEventListener('message', function (event) {
-      console.log("Message received from the parent ...: ", event.data); // Message received from parent
-      console.log("Message received from the parent ... event: ", event); // Message received from parent
+      console.log("Message received from the parent __: ", event.data); // Message received from parent
+      console.log("Message received from the parent __ event: ", event); // Message received from parent
       if (window !== window.top) {
         window.parent.postMessage({ ...event.data }, "*");
       }
