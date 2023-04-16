@@ -246,8 +246,8 @@ const Activity = (props) => {
           clearInterval(h5pActivityTimeInterval);
           let h5pActivity = document.getElementsByClassName('h5p-iframe')[0].contentWindow.H5P.instances[0];
           if (h5pActivity && h5pActivity.hasOwnProperty('currentSlideIndex')) {
-            let slideNumber = parseInt(h5pActivity.currentSlideIndex) + 1;
-            window.parent.postMessage({ slideNumber }, "*");
+            let currentSlide = parseInt(h5pActivity.currentSlideIndex) + 1;
+            window.parent.postMessage({ currentSlide }, "*");
           }
         }
       }, 2000);
