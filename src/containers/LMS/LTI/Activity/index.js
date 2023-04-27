@@ -11,8 +11,10 @@ import * as xAPIHelper from 'helpers/xapi';
 import { loadH5pResourceXapi } from 'store/actions/resource';
 import { loadH5pResourceSettings } from 'store/actions/gapi';
 import { gradePassBackAction, activityInitAction, passLtiCourseDetails } from 'store/actions/canvas';
+import { assignmentSubmitAction } from 'store/actions/wordpress';
 import { saveResultScreenshotAction } from 'store/actions/safelearn';
 import './style.scss';
+import jwt_decode from "jwt-decode";
 
 const reducer = (activityState, action) => {
   switch (action.type) {
@@ -59,7 +61,7 @@ const reducer = (activityState, action) => {
 };
 
 const Activity = (props) => {
-  const { match, h5pSettings, ltiFinished, attemptId, loadH5pSettings, passCourseDetails, sendStatement, gradePassBack, activityInit, sendScreenshot } = props;
+  const { match, h5pSettings, ltiFinished, attemptId, loadH5pSettings, passCourseDetails, sendStatement, gradePassBack, activityInit, sendScreenshot, assignmentSubmit } = props;
   const { activityId } = match.params;
   const searchParams = new URLSearchParams(window.location.search);
   const session = searchParams.get('PHPSESSID');
@@ -197,7 +199,27 @@ const Activity = (props) => {
             confirmButtonText: 'OK',
           }).then(() => {
             const score = xapiData.result.score.scaled;
+            console.log("xapiData ==============================>>>>> ", xapiData);
             gradePassBack(session, 1, score);
+
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            const urlParams = Object.fromEntries(urlSearchParams.entries());
+            console.log('urlParams >>>>> ', urlParams);
+            const tokenData = jwt_decode(urlParams.id_token);
+            console.log('token >>>>> ', tokenData);
+            const ltiCustom = tokenData["https://purl.imsglobal.org/spec/lti/claim/custom"];
+            console.log('ltiCustom >>> ', ltiCustom);
+
+            if (ltiCustom.hasOwnProperty('assignment_id')) {
+              const assignmentId = ltiCustom.assignment_id;
+              const userId = ltiCustom.login_id;
+              const ltiUserId = urlParams.user_id;
+              const submissionId = urlParams.submission_id;
+              const ltiEndpoint = tokenData['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitem'];
+              assignmentSubmit(assignmentId, userId, ltiUserId, submissionId, ltiEndpoint);
+            } else {
+              // Swal.fire('Assignment not submitted', '', 'error');
+            }
             Swal.fire('Saved!', '', 'success');
           });
         } else {
@@ -295,6 +317,7 @@ Activity.propTypes = {
   passCourseDetails: PropTypes.func.isRequired,
   sendStatement: PropTypes.func.isRequired,
   gradePassBack: PropTypes.func.isRequired,
+  assignmentSubmit: PropTypes.func.isRequired,
   activityInit: PropTypes.func.isRequired,
   sendScreenshot: PropTypes.func.isRequired,
 };
@@ -310,6 +333,7 @@ const mapDispatchToProps = (dispatch) => ({
   passCourseDetails: (params) => dispatch(passLtiCourseDetails(params)),
   sendStatement: (statement) => dispatch(loadH5pResourceXapi(statement)),
   gradePassBack: (session, gpb, score, isLearner) => dispatch(gradePassBackAction(session, gpb, score)),
+  assignmentSubmit: (assignmentId, userId, ltiUserId, submissionId, ltiEndpoint) => dispatch(assignmentSubmitAction(assignmentId, userId, ltiUserId, submissionId, ltiEndpoint)),
   activityInit: () => dispatch(activityInitAction()),
   sendScreenshot: (org, statement, title, studentName) => dispatch(saveResultScreenshotAction(org, statement, title, studentName)),
 });
