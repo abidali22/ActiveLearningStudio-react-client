@@ -199,16 +199,12 @@ const Activity = (props) => {
             confirmButtonText: 'OK',
           }).then(() => {
             const score = xapiData.result.score.scaled;
-            console.log("xapiData ==============================>>>>> ", xapiData);
             gradePassBack(session, 1, score);
 
             const urlSearchParams = new URLSearchParams(window.location.search);
             const urlParams = Object.fromEntries(urlSearchParams.entries());
-            console.log('urlParams >>>>> ', urlParams);
             const tokenData = jwt_decode(urlParams.id_token);
-            console.log('token >>>>> ', tokenData);
             const ltiCustom = tokenData["https://purl.imsglobal.org/spec/lti/claim/custom"];
-            console.log('ltiCustom >>> ', ltiCustom);
 
             if (ltiCustom.hasOwnProperty('assignment_id')) {
               const assignmentId = ltiCustom.assignment_id;
