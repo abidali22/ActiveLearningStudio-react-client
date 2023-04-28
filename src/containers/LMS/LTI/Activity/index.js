@@ -216,7 +216,7 @@ const Activity = (props) => {
               const ltiUserId = urlParams.user_id;
               const submissionId = urlParams.submission_id;
               const ltiEndpoint = tokenData['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitem'];
-              assignmentSubmit(assignmentId, userId, ltiUserId, submissionId, ltiEndpoint);
+              assignmentSubmit(assignmentId, userId, ltiUserId, submissionId, ltiEndpoint, xapiData.result);
             } else {
               // Swal.fire('Assignment not submitted', '', 'error');
             }
@@ -333,7 +333,7 @@ const mapDispatchToProps = (dispatch) => ({
   passCourseDetails: (params) => dispatch(passLtiCourseDetails(params)),
   sendStatement: (statement) => dispatch(loadH5pResourceXapi(statement)),
   gradePassBack: (session, gpb, score, isLearner) => dispatch(gradePassBackAction(session, gpb, score)),
-  assignmentSubmit: (assignmentId, userId, ltiUserId, submissionId, ltiEndpoint) => dispatch(assignmentSubmitAction(assignmentId, userId, ltiUserId, submissionId, ltiEndpoint)),
+  assignmentSubmit: (assignmentId, userId, ltiUserId, submissionId, ltiEndpoint, result) => dispatch(assignmentSubmitAction(assignmentId, userId, ltiUserId, submissionId, ltiEndpoint, result)),
   activityInit: () => dispatch(activityInitAction()),
   sendScreenshot: (org, statement, title, studentName) => dispatch(saveResultScreenshotAction(org, statement, title, studentName)),
 });
