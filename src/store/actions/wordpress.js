@@ -1,5 +1,5 @@
 import wordpressService from 'services/wordpress.service';
-import { ASSIGNMENT_SUBMIT } from '../actionTypes';
+import { ASSIGNMENT_SUBMIT, ASSIGNMENT_ATTEMPTED } from '../actionTypes';
 
 export const assignmentSubmitAction = (assignmentId, userId, ltiUserId, submissionId, ltiEndpoint, result) => async (dispatch) => {
   dispatch({
@@ -8,6 +8,9 @@ export const assignmentSubmitAction = (assignmentId, userId, ltiUserId, submissi
   await wordpressService.assignmentSubmit(assignmentId, userId, ltiUserId, submissionId, ltiEndpoint, result);
 };
 
-export const fetchAssignmentEndpoint = () => async (dispatch) => {
-  console.log(dispatch);
+export const setAssignmentAttemptAction = (assignmentId, userId, ltiEndpoint) => async (dispatch) => {
+  dispatch({
+    type: ASSIGNMENT_ATTEMPTED,
+  });
+  await wordpressService.assignmentAttempted(assignmentId, userId, ltiEndpoint);
 };

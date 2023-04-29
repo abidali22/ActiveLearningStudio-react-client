@@ -11,7 +11,7 @@ import * as xAPIHelper from 'helpers/xapi';
 import { loadH5pResourceXapi } from 'store/actions/resource';
 import { loadH5pResourceSettings } from 'store/actions/gapi';
 import { gradePassBackAction, activityInitAction, passLtiCourseDetails } from 'store/actions/canvas';
-import { assignmentSubmitAction } from 'store/actions/wordpress';
+import { assignmentSubmitAction, setAssignmentAttemptAction } from 'store/actions/wordpress';
 import { saveResultScreenshotAction } from 'store/actions/safelearn';
 import './style.scss';
 import jwt_decode from "jwt-decode";
@@ -61,7 +61,7 @@ const reducer = (activityState, action) => {
 };
 
 const Activity = (props) => {
-  const { match, h5pSettings, ltiFinished, attemptId, loadH5pSettings, passCourseDetails, sendStatement, gradePassBack, activityInit, sendScreenshot, assignmentSubmit } = props;
+  const { match, h5pSettings, ltiFinished, attemptId, loadH5pSettings, passCourseDetails, sendStatement, gradePassBack, activityInit, sendScreenshot, assignmentSubmit, assignmentAttempted } = props;
   const { activityId } = match.params;
   const searchParams = new URLSearchParams(window.location.search);
   const session = searchParams.get('PHPSESSID');
@@ -176,6 +176,18 @@ const Activity = (props) => {
         // Extending the xAPI statement with our custom values and sending it off to LRS
         const xapiData = xAPIHelper.extendStatement(this, event.data.statement, params);
 
+        const urlSearchParamsData = new URLSearchParams(window.location.search);
+        const urlParamsData = Object.fromEntries(urlSearchParamsData.entries());
+        const ltiTokenData = jwt_decode(urlParamsData.id_token);
+        const ltiCustomData = ltiTokenData["https://purl.imsglobal.org/spec/lti/claim/custom"];
+
+        if (event.data.statement.verb.display['en-US'] === 'attempted' && ltiCustomData.hasOwnProperty('platform') && ltiCustomData.platform === 'wordpress') {
+          const assignmentId = ltiCustomData.assignment_id;
+          const userId = ltiCustomData.login_id;
+          const ltiEndpointUrl = ltiTokenData['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitem'];
+          assignmentAttempted(assignmentId, userId, ltiEndpointUrl);
+        }
+
         if (event.data.statement.verb.display['en-US'] === 'submitted-curriki') {
           // Check if all questions/interactions have been accounted for in LRS
           // If the user skips one of the questions, no xAPI statement is generated.
@@ -206,7 +218,7 @@ const Activity = (props) => {
             const tokenData = jwt_decode(urlParams.id_token);
             const ltiCustom = tokenData["https://purl.imsglobal.org/spec/lti/claim/custom"];
 
-            if (ltiCustom.hasOwnProperty('assignment_id')) {
+            if (ltiCustom.hasOwnProperty('assignment_id') && ltiCustomData.hasOwnProperty('platform') && ltiCustomData.platform === 'wordpress') {
               const assignmentId = ltiCustom.assignment_id;
               const userId = ltiCustom.login_id;
               const ltiUserId = urlParams.user_id;
@@ -314,6 +326,7 @@ Activity.propTypes = {
   sendStatement: PropTypes.func.isRequired,
   gradePassBack: PropTypes.func.isRequired,
   assignmentSubmit: PropTypes.func.isRequired,
+  assignmentAttempted: PropTypes.func.isRequired,
   activityInit: PropTypes.func.isRequired,
   sendScreenshot: PropTypes.func.isRequired,
 };
@@ -330,6 +343,7 @@ const mapDispatchToProps = (dispatch) => ({
   sendStatement: (statement) => dispatch(loadH5pResourceXapi(statement)),
   gradePassBack: (session, gpb, score, isLearner) => dispatch(gradePassBackAction(session, gpb, score)),
   assignmentSubmit: (assignmentId, userId, ltiUserId, submissionId, ltiEndpoint, result) => dispatch(assignmentSubmitAction(assignmentId, userId, ltiUserId, submissionId, ltiEndpoint, result)),
+  assignmentAttempted: (assignmentId, userId, ltiEndpoint) => dispatch(setAssignmentAttemptAction(assignmentId, userId, ltiEndpoint)),
   activityInit: () => dispatch(activityInitAction()),
   sendScreenshot: (org, statement, title, studentName) => dispatch(saveResultScreenshotAction(org, statement, title, studentName)),
 });
