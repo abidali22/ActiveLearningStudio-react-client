@@ -130,6 +130,17 @@ const Activity = (props) => {
     window.H5P = window.H5P || {};
     window.H5P.preventInit = true;
     window.H5PIntegration = h5pSettings.h5p.settings;
+
+    const urlSearchParamsData = new URLSearchParams(window.location.search);
+    const urlParamsData = Object.fromEntries(urlSearchParamsData.entries());
+    const ltiTokenData = jwt_decode(urlParamsData.id_token);
+    const ltiCustomData = ltiTokenData["https://purl.imsglobal.org/spec/lti/claim/custom"];
+    if (ltiCustomData.hasOwnProperty('skipSave')) {
+      if (ltiCustomData.skipSave == 1) {
+        window.H5PIntegration.ajax.contentUserData += '&skipSave=1';
+      }
+    }
+
     const h5pWrapper = document.getElementById('curriki-h5p-wrapper');
     h5pWrapper.innerHTML = h5pSettings.h5p.embed_code.trim();
 
