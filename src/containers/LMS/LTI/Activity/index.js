@@ -11,7 +11,7 @@ import * as xAPIHelper from 'helpers/xapi';
 import { loadH5pResourceXapi } from 'store/actions/resource';
 import { loadH5pResourceSettings } from 'store/actions/gapi';
 import { gradePassBackAction, activityInitAction, passLtiCourseDetails } from 'store/actions/canvas';
-import { assignmentSubmitAction, setAssignmentAttemptAction } from 'store/actions/wordpress';
+import { assignmentSubmitAction, setAssignmentAttemptAction, setAssignmentGradeAction } from 'store/actions/wordpress';
 import { saveResultScreenshotAction } from 'store/actions/safelearn';
 import './style.scss';
 import jwt_decode from "jwt-decode";
@@ -61,7 +61,7 @@ const reducer = (activityState, action) => {
 };
 
 const Activity = (props) => {
-  const { match, h5pSettings, ltiFinished, attemptId, loadH5pSettings, passCourseDetails, sendStatement, gradePassBack, activityInit, sendScreenshot, assignmentSubmit, assignmentAttempted } = props;
+  const { match, h5pSettings, ltiFinished, attemptId, loadH5pSettings, passCourseDetails, sendStatement, gradePassBack, activityInit, sendScreenshot, assignmentSubmit, assignmentAttempted, gradeAssignment } = props;
   const { activityId } = match.params;
   const searchParams = new URLSearchParams(window.location.search);
   const session = searchParams.get('PHPSESSID');
@@ -191,6 +191,10 @@ const Activity = (props) => {
         const urlParamsData = Object.fromEntries(urlSearchParamsData.entries());
         const ltiTokenData = jwt_decode(urlParamsData.id_token);
         const ltiCustomData = ltiTokenData["https://purl.imsglobal.org/spec/lti/claim/custom"];
+
+        if (event.data.statement.verb.display['en-US'] === 'answered' && ltiCustomData.hasOwnProperty('platform') && ltiCustomData.platform === 'wordpress' && ltiCustomData.hasOwnProperty('grade_endpoint')) {
+          gradeAssignment(ltiCustomData.grade_endpoint, { 'slide': event.data.statement.context.extensions["http://id.tincanapi.com/extension/ending-point"], result: event.data.statement.result, assignment_id: ltiCustomData.assignment_id, student_user_id: ltiCustomData.login_id });
+        }
 
         if (event.data.statement.verb.display['en-US'] === 'attempted' && ltiCustomData.hasOwnProperty('platform') && ltiCustomData.platform === 'wordpress') {
           const assignmentId = ltiCustomData.assignment_id;
@@ -338,6 +342,7 @@ Activity.propTypes = {
   gradePassBack: PropTypes.func.isRequired,
   assignmentSubmit: PropTypes.func.isRequired,
   assignmentAttempted: PropTypes.func.isRequired,
+  gradeAssignment: PropTypes.func.isRequired,
   activityInit: PropTypes.func.isRequired,
   sendScreenshot: PropTypes.func.isRequired,
 };
@@ -355,6 +360,7 @@ const mapDispatchToProps = (dispatch) => ({
   gradePassBack: (session, gpb, score, isLearner) => dispatch(gradePassBackAction(session, gpb, score)),
   assignmentSubmit: (assignmentId, userId, ltiUserId, submissionId, ltiEndpoint, result) => dispatch(assignmentSubmitAction(assignmentId, userId, ltiUserId, submissionId, ltiEndpoint, result)),
   assignmentAttempted: (assignmentId, userId, ltiEndpoint) => dispatch(setAssignmentAttemptAction(assignmentId, userId, ltiEndpoint)),
+  gradeAssignment: (endpoint, data) => dispatch(setAssignmentGradeAction(endpoint, data)),
   activityInit: () => dispatch(activityInitAction()),
   sendScreenshot: (org, statement, title, studentName) => dispatch(saveResultScreenshotAction(org, statement, title, studentName)),
 });

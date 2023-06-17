@@ -37,4 +37,15 @@ const assignmentAttempted = (assignmentId, userId, ltiEndpoint) => {
     });
   });
 };
-export default { assignmentSubmit, assignmentAttempted };
+
+const gradeAssignment = (endpoint, data) => {
+  axios({
+    method: 'post',
+    url: decodeURIComponent(endpoint),
+    data,
+  }).then((gradeResponse) => {
+    console.log('gradeResponse >>>>> ', gradeResponse);
+  });
+};
+
+export default { assignmentSubmit, assignmentAttempted, gradeAssignment };
