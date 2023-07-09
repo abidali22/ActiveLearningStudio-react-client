@@ -192,11 +192,12 @@ const Activity = (props) => {
         const ltiTokenData = jwt_decode(urlParamsData.id_token);
         const ltiCustomData = ltiTokenData["https://purl.imsglobal.org/spec/lti/claim/custom"];
 
-        if (event.data.statement.verb.display['en-US'] === 'answered' && ltiCustomData.hasOwnProperty('platform') && ltiCustomData.platform === 'wordpress' && ltiCustomData.hasOwnProperty('grade_endpoint')) {
-          gradeAssignment(ltiCustomData.grade_endpoint, { 'slide': event.data.statement.context.extensions["http://id.tincanapi.com/extension/ending-point"], result: event.data.statement.result, assignment_id: ltiCustomData.assignment_id, student_user_id: ltiCustomData.login_id });
+        if (event.data.statement.verb.display['en-US'] === 'answered' && ltiCustomData.hasOwnProperty('platform') && ltiCustomData.platform === 'wordpress' && ltiCustomData.hasOwnProperty('assignment_id')) {
+          const ltiEndpointUrl = ltiTokenData['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitem'];
+          gradeAssignment(ltiEndpointUrl, { 'slide': event.data.statement.context.extensions["http://id.tincanapi.com/extension/ending-point"], result: event.data.statement.result, assignment_id: ltiCustomData.assignment_id, student_user_id: ltiCustomData.login_id, xapiData });
         }
 
-        if (event.data.statement.verb.display['en-US'] === 'attempted' && ltiCustomData.hasOwnProperty('platform') && ltiCustomData.platform === 'wordpress') {
+        if (event.data.statement.verb.display['en-US'] === 'attempted' && ltiCustomData.hasOwnProperty('platform') && ltiCustomData.platform === 'wordpress' && ltiCustomData.hasOwnProperty('assignment_id')) {
           const assignmentId = ltiCustomData.assignment_id;
           const userId = ltiCustomData.login_id;
           const ltiEndpointUrl = ltiTokenData['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitem'];

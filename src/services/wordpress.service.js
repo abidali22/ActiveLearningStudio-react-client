@@ -38,13 +38,20 @@ const assignmentAttempted = (assignmentId, userId, ltiEndpoint) => {
   });
 };
 
-const gradeAssignment = (endpoint, data) => {
+const gradeAssignment = (ltiEndpoint, data) => {
   axios({
-    method: 'post',
-    url: decodeURIComponent(endpoint),
-    data,
-  }).then((gradeResponse) => {
-    console.log('gradeResponse >>>>> ', gradeResponse);
+    method: 'get',
+    url: ltiEndpoint,
+  }).then((response) => {
+    const { data: { routes } } = response;
+    const gradeByStudentEndpoint = routes['/lms/v1/assignment/submission/gradeByStudent']._links.self[0].href;
+    axios({
+      method: 'post',
+      url: gradeByStudentEndpoint,
+      data,
+    }).then((responseGradeByStudentEndpoint) => {
+      console.log('gradeByStudentEndpoint >>>>> ', responseGradeByStudentEndpoint);
+    });
   });
 };
 
