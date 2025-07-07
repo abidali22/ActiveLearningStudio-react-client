@@ -1,7 +1,7 @@
-FROM node:10 as build
+FROM node:10 AS build
 
 WORKDIR /app
-ENV PATH /app/node_modules/.bin:$PATH
+ENV PATH=/app/node_modules/.bin:$PATH
 ARG DOMAIN
 ENV DOMAIN_URL=$DOMAIN
 COPY ./package*.json ./
@@ -17,7 +17,7 @@ COPY . .
 RUN mv log.txt build/
 
 # -- RELEASE --
-FROM nginx:stable-alpine as release
+FROM nginx:stable-alpine AS release
 
 COPY --from=build /app/build /usr/share/nginx/html
 # copy .env.example as .env to the release build
