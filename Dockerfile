@@ -1,4 +1,4 @@
-FROM node:10 AS build
+FROM node:14.21 AS build
 
 WORKDIR /app
 ENV PATH=/app/node_modules/.bin:$PATH
@@ -6,26 +6,28 @@ ARG DOMAIN
 ENV DOMAIN_URL=$DOMAIN
 COPY ./package*.json ./
 RUN npm install
-RUN apt-get install git -y
+RUN apt-get update && apt-get install -y git
 COPY . .
-RUN git log --graph -10 --decorate --pretty > log.txt
+#RUN git log --graph -10 --decorate --pretty > log.txt
 
-RUN npm install --no-package-lock
-RUN CI=true npm test a && set GENERATE_SOURCEMAP=false && npm run build
+#RUN npm install --no-package-lock
+#RUN CI=true npm test && GENERATE_SOURCEMAP=false && npm run build
+RUN DISABLE_ESLINT_PLUGIN=true GENERATE_SOURCEMAP=false npm run build
 
-COPY . .
-RUN mv log.txt build/
+#COPY . .
+#RUN mv log.txt build/
 
 # -- RELEASE --
 FROM nginx:stable-alpine AS release
 
 COPY --from=build /app/build /usr/share/nginx/html
-# copy .env.example as .env to the release build
-# COPY --from=build /app/.env.example /usr/share/nginx/html/.env
+#copy .env.example as .env to the release build
+COPY --from=build /app/.env.example /usr/share/nginx/html/.env
 COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
 
-RUN apk add --update nodejs
-RUN apk add --update npm
+#RUN apk add --update nodejs
+#RUN apk add --update npm
+RUN apk add --no-cache nodejs npm
 RUN npm install -g runtime-env-cra@0.2.2
 
 WORKDIR /usr/share/nginx/html

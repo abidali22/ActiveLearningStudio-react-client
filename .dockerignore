@@ -1,3 +1,11 @@
-node_modules/*
 .env.local
+node_modules
+.git
+Dockerfile
+*.log
+.env
+*.md
+*.zip
+build
+coverage
 
